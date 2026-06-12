@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WOLF LABS | The Family Scrapbook</title>
+    
+    <!-- Fonts: Special Elite (Typewriter), Quicksand (Clean Body), Caveat (Handwriting) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Quicksand:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bgPaper: '#1A1715',      /* Dark Espresso Paper */
+                        panelWhite: '#2A2623',   /* Dark Polaroid/Panel */
+                        panelHover: '#3B3530',   /* Lighter Taupe Hover */
+                        textMain: '#EAE4D9',     /* Soft Cream Text */
+                        textMuted: '#968E85',    /* Faded Ink */
+                        accentRed: '#D9534F',    /* Vintage Stamp Red */
+                        accentBlue: '#5DADE2',   /* Light Pen Ink Blue */
+                        accentYellow: '#B89B48', /* Vintage Gold (Sticky Note) */
+                        accentGreen: '#4CAF50'   /* Vintage Green */
+                    },
+                    fontFamily: {
+                        epic: ['"Special Elite"', 'cursive'],
+                        ui: ['Quicksand', 'sans-serif'],
+                        hand: ['Caveat', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            background-color: #1A1715; color: #EAE4D9; overflow: hidden; font-family: 'Quicksand', sans-serif; 
+            transition: background-color 1s ease; 
+            /* Subtle dot grid pattern for scrapbook paper */
+            background-image: radial-gradient(rgba(234,228,217,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Immersive Shift Class (Sepia/Memory Mode) */
+        body.immersive-shift { 
+            background-color: #241A14; 
+            background-image: radial-gradient(rgba(234,228,217,0.08) 1px, transparent 1px);
+        }
+        body.immersive-shift .ws-panel { filter: sepia(0.4); }
+        
+        /* Scrapbook Aesthetics */
+        .ws-panel { background: #2A2623; border: 1px solid #3B3530; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        
+        .polaroid {
+            background: #2A2623;
+            padding: 16px 16px 50px 16px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border: 1px solid #3B3530;
+            position: relative;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .polaroid:hover { transform: scale(1.02) rotate(0deg) !important; z-index: 10; box-shadow: 0 15px 30px rgba(0,0,0,0.7); }
+        
+        .tape {
+            position: absolute; width: 100px; height: 30px;
+            background-color: rgba(234, 228, 217, 0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3); backdrop-filter: blur(2px);
+            top: -15px; left: 50%; transform: translateX(-50%) rotate(-2deg);
+            z-index: 5; border-left: 2px dashed rgba(255,255,255,0.05); border-right: 2px dashed rgba(255,255,255,0.05);
+        }
+
+        .sticky-note {
+            background: #3B3026;
+            box-shadow: 3px 5px 10px rgba(0,0,0,0.3);
+            padding: 20px;
+            position: relative;
+            transform: rotate(2deg);
+        }
+        .sticky-note::after {
+            content: ""; position: absolute; bottom: 0; right: 0;
+            border-width: 15px 15px 0 0; border-style: solid;
+            border-color: #261F18 #1A1715; display: block; width: 0;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3B3530; border-radius: 10px; }
+
+        @keyframes fadeOut { to { opacity: 0; pointer-events: none; } }
+        .fade-out { animation: fadeOut 0.8s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px) rotate(0deg); } to { opacity: 1; transform: translateY(0) rotate(0deg); } }
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes damageShake { 0%, 100% { transform: translateX(0) rotate(-1deg); } 20%, 60% { transform: translateX(-15px) rotate(2deg); } 40%, 80% { transform: translateX(15px) rotate(-2deg); } }
+        .damage-shake { animation: damageShake 0.4s ease-in-out; }
+        @keyframes stampDown { 0% { transform: scale(3) rotate(-20deg); opacity: 0; } 50% { transform: scale(0.9) rotate(5deg); opacity: 1; } 100% { transform: scale(1) rotate(5deg); opacity: 1; } }
+        .praise-stamp { animation: stampDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        .teacher-drawer { position: fixed; top: 0; right: -400px; width: 400px; height: 100vh; background: #1A1715; z-index: 200; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-left: 2px dashed #3B3530; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+        .teacher-drawer.open { right: 0; }
+
+        .lever-track { width: 120px; height: 40px; background: #1A1715; border-radius: 20px; position: relative; cursor: pointer; border: 2px solid #3B3530; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); }
+        .lever-thumb { width: 50px; height: 32px; background: #5DADE2; border-radius: 16px; position: absolute; top: 2px; left: 4px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .lever-track.toggled .lever-thumb { left: 62px; background: #D9534F; }
+
+        .progress-bar-fill { transition: width 0.3s ease; }
+
+        .btn-retro { background: #2A2623; color: #EAE4D9; border: 2px solid #EAE4D9; border-radius: 8px; font-family: 'Special Elite', cursive; text-transform: uppercase; font-weight: bold; transition: all 0.2s; box-shadow: 4px 4px 0 #EAE4D9; cursor: pointer; }
+        .btn-retro:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #EAE4D9; background: #3B3530; }
+        .btn-retro:active { transform: translate(4px, 4px); box-shadow: 0 0 0 #EAE4D9; }
+
+        .vocab-link { color: #D9534F; font-weight: 800; border-bottom: 2px solid #D9534F; cursor: pointer; transition: all 0.2s; padding: 0 4px; background: rgba(217, 83, 79, 0.1); }
+        .vocab-link:hover { background: rgba(217, 83, 79, 0.2); }
+        .vocab-link.active { background: #B89B48; color: #1A1715; border-bottom-color: #1A1715; }
+
+        /* Journal Paper Style */
+        .journal-paper { background: #2A2623; background-image: repeating-linear-gradient(transparent, transparent 31px, #3B3530 31px, #3B3530 32px); line-height: 32px; padding: 32px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-left: 2px solid #D9534F; }
+    </style>
+</head>
+<body class="flex flex-col h-screen select-none relative">
+    
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen" class="fixed inset-0 z-[1000] bg-bgPaper flex flex-col items-center justify-center">
+        <div class="text-accentRed text-6xl mb-6 animate-bounce"><i class="fa-solid fa-camera-retro drop-shadow-md"></i></div>
+        <h1 class="font-epic text-4xl text-textMain tracking-widest mb-12 uppercase">ALBUM INITIATING</h1>
+        <button onclick="initializeSystem()" class="btn-retro px-10 py-4 text-xl">OPEN SCRAPBOOK</button>
+    </div>
+
+    <!-- DAMAGE OVERLAY (INK BLOTCH) -->
+    <div id="damage-overlay" class="fixed inset-0 z-[800] bg-accentRed/10 border-[16px] border-accentRed/30 opacity-0 pointer-events-none transition-opacity duration-100 flex items-center justify-center">
+        <div class="font-epic text-9xl text-accentRed opacity-40 transform -rotate-12 border-8 border-accentRed p-4 rounded-xl">ERROR</div>
+    </div>
+
+    <!-- PRAISE OVERLAY (RED STAMP) -->
+    <div id="praise-overlay" class="fixed inset-0 z-[900] flex items-center justify-center pointer-events-none opacity-0">
+        <div id="praise-card" class="border-8 border-accentGreen text-accentGreen px-12 py-6 rounded-2xl bg-panelWhite/90 backdrop-blur-sm text-center shadow-2xl">
+            <h2 id="praise-text" class="font-epic text-5xl md:text-6xl font-black uppercase tracking-wider mb-2">PERFECT!</h2>
+            <p id="praise-sub" class="font-epic text-lg font-bold tracking-[0.2em] uppercase border-t-4 border-accentGreen pt-2">Memory Saved</p>
+        </div>
+    </div>
+
+    <!-- TEACHER DRAWER -->
+    <div id="teacher-panel" class="teacher-drawer p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-6 border-b-2 border-textMuted pb-4">
+            <h2 class="font-epic text-2xl text-textMain tracking-tight uppercase"><i class="fa-solid fa-pen-nib mr-2"></i> Director's Notes</h2>
+            <button onclick="toggleTeacherPanel()" class="text-textMuted hover:text-accentRed"><i class="fa-solid fa-xmark text-2xl"></i></button>
+        </div>
+        <textarea id="teacher-notes" class="flex-1 bg-transparent border-none p-2 font-hand text-3xl text-textMain focus:outline-none resize-none mb-6" style="background-image: repeating-linear-gradient(transparent, transparent 31px, #3B3530 31px, #3B3530 32px); line-height: 32px;" placeholder="Write observations here..."></textarea>
+        <div class="space-y-4">
+            <p class="font-epic text-sm text-textMuted tracking-widest uppercase font-bold text-center">Stamps of Approval</p>
+            <button onclick="triggerPraise('SPOT ON!', 'Great Grammar')" class="w-full py-4 bg-panelWhite border-2 border-accentGreen text-accentGreen rounded-xl hover:bg-accentGreen hover:text-panelWhite transition-all font-epic tracking-widest uppercase shadow-[4px_4px_0_#4CAF50] active:translate-y-1 active:translate-x-1 active:shadow-none">Stamp: Grammar</button>
+            <button onclick="triggerPraise('BEAUTIFUL!', 'Amazing Vocab')" class="w-full py-4 bg-panelWhite border-2 border-accentBlue text-accentBlue rounded-xl hover:bg-accentBlue hover:text-panelWhite transition-all font-epic tracking-widest uppercase shadow-[4px_4px_0_#5DADE2] active:translate-y-1 active:translate-x-1 active:shadow-none">Stamp: Vocab</button>
+        </div>
+    </div>
+
+    <!-- TOP HUD -->
+    <header class="h-20 bg-panelWhite border-b-2 border-panelHover rounded-none z-100 flex items-center justify-between px-8 shrink-0 relative z-40 shadow-sm">
+        <div class="flex items-center gap-8">
+            <div id="health-bar" class="flex gap-2 text-2xl text-accentRed">
+                <i class="fa-solid fa-bookmark" id="hp-1"></i><i class="fa-solid fa-bookmark" id="hp-2"></i><i class="fa-solid fa-bookmark" id="hp-3"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-epic text-[10px] text-textMuted uppercase tracking-widest font-bold">Memories (XP)</span>
+                <span id="xp-counter" class="font-epic text-xl text-accentBlue font-bold">0000</span>
+            </div>
+        </div>
+        <div class="absolute left-1/2 -translate-x-1/2 text-center bg-bgPaper px-6 py-2 border-2 border-textMain rounded shadow-[2px_2px_0_#EAE4D9]">
+            <p id="hud-name" class="font-epic font-bold text-textMain tracking-[0.2em] uppercase">ALBUM_OWNER</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleFullScreen()" class="font-epic text-xs bg-bgPaper w-10 h-10 flex items-center justify-center rounded hover:bg-panelHover transition-colors border-2 border-textMain shadow-[2px_2px_0_#EAE4D9]" title="Tela Cheia"><i class="fa-solid fa-expand text-lg" id="fs-icon"></i></button>
+            <button onclick="toggleTeacherPanel()" class="font-epic text-xs bg-bgPaper px-5 py-2.5 rounded hover:bg-panelHover transition-colors tracking-widest uppercase border-2 border-textMain shadow-[2px_2px_0_#EAE4D9]"><i class="fa-solid fa-book-open mr-2"></i> Guide</button>
+        </div>
+    </header>
+
+    <!-- MAIN ARENA -->
+    <main id="arena" class="flex-1 relative overflow-y-auto overflow-x-hidden flex items-center justify-center p-4 md:p-8">
+        <div id="step-container" class="w-full max-w-5xl transition-all duration-300 relative z-10 h-full flex flex-col justify-center pb-20"></div>
+    </main>
+
+    <!-- BOTTOM NAVIGATION -->
+    <footer class="h-20 bg-panelWhite border-t-2 border-panelHover rounded-none z-100 flex items-center justify-between px-8 shrink-0 relative z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]">
+        <div class="w-1/3">
+            <div class="w-full bg-panelHover h-3 rounded-none overflow-hidden border-2 border-textMain">
+                <div id="progress-fill" class="h-full bg-accentBlue transition-all duration-500" style="width: 4%"></div>
+            </div>
+        </div>
+        <div class="w-1/3 text-center">
+            <span id="page-counter" class="font-epic text-textMuted text-sm tracking-[0.2em] bg-bgPaper px-4 py-1 border border-panelHover rounded">PAGE 01 / 25</span>
+        </div>
+        <div class="w-1/3 flex justify-end gap-4">
+            <button id="btn-prev" onclick="nav(-1)" class="w-12 h-12 bg-bgPaper border-2 border-textMain text-textMain flex items-center justify-center hover:bg-panelHover disabled:opacity-30 transition-all shadow-[2px_2px_0_#EAE4D9] active:translate-y-1 active:translate-x-1 active:shadow-none"><i class="fa-solid fa-chevron-left"></i></button>
+            <button id="btn-next" onclick="nav(1)" class="w-12 h-12 bg-accentYellow border-2 border-textMain text-textMain flex items-center justify-center hover:brightness-110 transition-all shadow-[2px_2px_0_#EAE4D9] active:translate-y-1 active:translate-x-1 active:shadow-none"><i class="fa-solid fa-chevron-right text-xl text-bgPaper"></i></button>
+        </div>
+    </footer>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        let state = { step: 0, hp: 3, xp: 0, studentName: "ALBUM_OWNER", totalSteps: 25, mechanics: {} };
+
+        // UI HELPER: Format Time
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        // UI HELPER: Speaking Prompt Box (Styled as a sticky note)
+        const buildSpeakingPrompt = (q, starter) => {
+            if(!q) return '';
+            return `
+                <div class="mt-8 sticky-note fade-in max-w-lg mx-auto">
+                    <div class="flex items-center gap-3 mb-2 border-b border-yellow-700/30 pb-2">
+                        <i class="fa-solid fa-thumbtack text-accentRed text-xl"></i>
+                        <p class="font-epic text-textMain text-sm tracking-widest uppercase font-bold">Discuss with Teacher</p>
+                    </div>
+                    <p class="font-ui text-xl text-textMain font-bold mb-4 mt-4">"${q}"</p>
+                    <p class="font-hand text-accentBlue text-3xl leading-none">"${starter}"</p>
+                </div>`;
+        };
+
+        // --- LESSON DATA (ACT I to V - EXACTLY 25 PAGES - A1+ LEVEL) ---
+        const lesson = [
+            // ACT I: Setup & Briefing
+            { type: 'cover', title: 'THE FAMILY SCRAPBOOK', subtitle: 'Our Memories', desc: 'A1+ Level. Master Family expressions, To Have/Has, Possessives and Ages.', icon: 'fa-images' },
+            { type: 'idReg', title: 'ALBUM OWNER', desc: 'Write your name on the cover of the scrapbook.' },
+            { type: 'mcqVibe', title: 'FAMILY DYNAMICS', q: 'How big is your family?', options: ['👨‍👩‍👧‍👦 I come from a big family!', '👨‍👦 It is a small family.', '🧍‍♂️ It is just me.'], followUpQ: 'Do you prefer a big, noisy house or a quiet house?', starter: '"I prefer a... because..."' },
+            { type: 'debate', title: 'MEMORY CHECK', q: 'What makes a family "close"? (Money, love, living together?)', starter: '"I think a family is close when they..."' },
+            
+            // ACT II: Fluency Toolkit (Input) - SCRAPBOOK JOURNALS
+            { type: 'matchVocab', title: 'PHOTO LABELS', pairs: [{w:'A big family', d:'Many relatives like brothers, sisters, and cousins.'}, {w:'Only child', d:'A person with zero brothers or sisters.'}, {w:'Siblings', d:'The word for brothers and sisters together.'}] },
+            
+            { type: 'easyReaderJournal', title: 'THE FIRST PAGE', 
+              photoIcon: 'fa-people-roof', date: 'October 14', 
+              text: 'Today I am organizing our family photos. I am not an <span class="vocab-link" onclick="openVocabModal(this, \'Only Child\', \'A person with no brothers or sisters.\', \'Are you an only child?\', \'Yes, I am / No, I have...\')">only child</span>. I come from <span class="vocab-link" onclick="openVocabModal(this, \'A big family\', \'Many relatives together.\', \'Do you have a big family?\', \'Yes, my family is...\')">a big family</span>! I have three <span class="vocab-link" onclick="openVocabModal(this, \'Siblings\', \'Brothers and sisters.\', \'How many siblings do you have?\', \'I have (number) siblings...\')">siblings</span>: two brothers and one sister.', 
+              defaultFollowUp: 'Read the journal entry aloud to the Teacher.' },
+
+            // BBC Video Segment 1: Intro & Siblings
+            { type: 'videoFeed', title: 'TAPE 1: Family Size', instruction: 'Watch this first segment. Pay attention to how they describe their families.', videoId: 'x72gP4HrU58', start: 13, end: 72 },
+
+            { type: 'mcqTrial', title: 'MEMORY TEST', q: 'Does Catherine (the woman) have siblings?', options: ['Yes, she has two brothers.', 'No, she is an only child.', 'Yes, she has a sister.'], correct: 1, followUpQ: 'What about Neil? How many siblings does he have?', starter: '"Neil has..."' },
+
+            // ACT III: Grammar & Relationships
+            { type: 'shift', title: 'GRAMMAR CHECK!', desc: 'To talk about your family photos correctly, you need to use HAVE vs HAS and Possessives. Let\'s review the rules.', bg: 'immersive-shift' },
+            
+            { type: 'lever', title: 'GRAMMAR SLIDER: POSSESSION', conceptA: 'I / You / We / They', textA: 'I have a big family.', conceptB: 'He / She / It', textB: 'She has a big family.', rule: 'Use HAVE for "I" and Plurals. Use HAS for "He" or "She".' },
+            { type: 'lever', title: 'GRAMMAR SLIDER: POSSESSIVES', conceptA: 'Male (He)', textA: 'He loves his brother.', conceptB: 'Female (She)', textB: 'She loves her brother.', rule: 'Use HIS for a man. Use HER for a woman.' },
+            
+            { type: 'decoder', title: 'PHOTO CAPTION 1', blocks: ['brother', 'My', 'has', 'children', 'two'], correct: 'My brother has two children', followUpQ: 'Does anyone in your family have children?', starter: '"Yes, my (sister/brother) has..."' },
+            
+            // BBC Video Segment 2: Relationships
+            { type: 'videoFeed', title: 'TAPE 2: Relationships', instruction: 'Listen carefully. Do they have a good relationship with their families?', videoId: 'x72gP4HrU58', start: 72, end: 130 },
+            
+            { type: 'matchVocab', title: 'NEW EXPRESSIONS', pairs: [{w:'Get on well', d:'To be friendly and not fight with someone.'}, {w:'Close', d:'To love each other and share secrets.'}, {w:'Older / Younger', d:'Someone born before you / after you.'}] },
+            
+            { type: 'rapidFire', title: 'NOISY DINNER TABLE', q: 'Do you get on well with your parents or siblings?', instruction: 'Everyone is talking at dinner! Answer the question out loud!' },
+
+            // ACT IV: Grammar (Age) & Deep Dive
+            { type: 'videoFeed', title: 'TAPE 3: Talking About Age', instruction: 'Listen to how they ask and answer questions about age.', videoId: 'x72gP4HrU58', start: 130, end: 200 },
+
+            { type: 'lever', title: 'GRAMMAR SLIDER: AGE', conceptA: 'Incorrect (Translate)', textA: 'I have 20 years.', conceptB: 'Correct (English)', textB: 'I am 20 years old.', rule: 'In English, you DO NOT "have" an age. You use the verb TO BE (am, is, are).' },
+
+            { type: 'mcqTrial', title: 'MEMORY TEST: AGE', q: 'My sister ___ 25 years old.', options: ['have', 'has', 'is'], correct: 2, followUpQ: 'How old is your best friend?', starter: '"My best friend is..."' },
+
+            { type: 'decoder', title: 'PHOTO CAPTION 2', blocks: ['mother', 'My', 'old', 'is', 'years', 'fifty'], correct: 'My mother is fifty years old', followUpQ: 'How old are your parents?', starter: '"My mother is... and my father is..."' },
+
+            { type: 'qRoulette', title: 'FAMILY ROULETTE', instruction: 'Spin the polaroid wheel to receive a random question about your family.', 
+              questions: ['Who is the funniest person in your family?', 'Are you close to your parents?', 'Who is the oldest person in your family?', 'Do you get on well with your cousins?'] },
+            { type: 'qRoulette', title: 'GOSSIP ROULETTE', instruction: 'Spin to gossip about someone else in the family (Use He/She).', 
+              questions: ['What does your father usually do on Sundays?', 'Where does your cousin live?', 'Does your brother/sister have a car?', 'What is your mother\'s job?'] },
+            
+            { type: 'pressConference', title: 'AUNTIE\'S INTERROGATION', reporter: 'Curious Aunt', prompt: 'Answer using HIS or HER.', q: 'Oh, you have a new friend! I want to know everything. What is HIS or HER name?' },
+            { type: 'pressConference', title: 'AUNTIE\'S COMPLAINT', reporter: 'Grumpy Aunt', prompt: 'Defend your family using a negative sentence.', q: 'This family is so boring! We never do anything fun on the weekends, right?' },
+            
+            // ACT V: Output & Wrap-up
+            { type: 'crossroads', title: 'THE FAMILY DILEMMA', dilemma: 'You win an amazing job that pays $1,000,000, but you must move to another country and only see your family once a year. Do you accept?', opt1: 'Take the Job', opt2: 'Stay with Family' },
+
+            { type: 'debate', title: 'DEEP THOUGHT: FRIENDS', q: '"Friends are the family you choose." Do you agree with this quote? Why?', starter: '"I agree/disagree because..."' },
+            { type: 'debate', title: 'DEEP THOUGHT: THE FUTURE', q: 'Are you going to have a big family in the future, or a small one?', starter: '"In the future, I want..."' },
+            { type: 'homework', title: 'ALBUM SAVED', desc: 'Your family scrapbook is complete. Use the mobile app to fix more grammar memories.', appName: 'Memory Fixer App' },
+            { type: 'curtain', title: 'MASTER OF MEMORIES', desc: 'You mastered Family Vocabulary, Have/Has and Ages!' }
+        ];
+
+        // --- CORE FUNCTIONS ---
+        function initializeSystem() { document.getElementById('loading-screen').classList.add('fade-out'); loadNotes(); render(); }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+                document.getElementById('fs-icon').classList.replace('fa-expand', 'fa-compress');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    document.getElementById('fs-icon').classList.replace('fa-compress', 'fa-expand');
+                }
+            }
+        }
+
+        function updateHUD() {
+            for(let i=1; i<=3; i++) {
+                const heart = document.getElementById(`hp-${i}`);
+                if(i <= state.hp) heart.classList.replace('fa-bookmark', 'fa-bookmark'); // kept same icon, toggle opacity instead
+                heart.style.opacity = (i <= state.hp) ? "1" : "0.2";
+            }
+            document.getElementById('hud-name').innerText = state.studentName;
+            document.getElementById('xp-counter').innerText = String(state.xp).padStart(4, '0');
+            document.getElementById('page-counter').innerText = `PAGE ${String(state.step + 1).padStart(2, '0')} / 25`;
+            document.getElementById('progress-fill').style.width = `${((state.step + 1) / 25) * 100}%`;
+            document.getElementById('btn-prev').disabled = state.step === 0;
+            document.getElementById('btn-next').disabled = state.step === 24;
+            if(lesson[state.step].bg === 'immersive-shift') document.body.classList.add('immersive-shift');
+            else document.body.classList.remove('immersive-shift');
+        }
+
+        function nav(dir) { let n = state.step + dir; if(n >= 0 && n < 25) { state.step = n; render(); } }
+
+        function takeDamage() {
+            if(state.hp > 0) state.hp--;
+            const overlay = document.getElementById('damage-overlay');
+            overlay.classList.replace('opacity-0', 'opacity-100');
+            document.getElementById('arena').classList.add('damage-shake');
+            updateHUD();
+            setTimeout(() => { overlay.classList.replace('opacity-100', 'opacity-0'); document.getElementById('arena').classList.remove('damage-shake'); }, 400);
+        }
+
+        function triggerPraise(mainText = 'PERFECT!', subText = 'MEMORY SAVED') {
+            const overlay = document.getElementById('praise-overlay');
+            const card = document.getElementById('praise-card');
+            document.getElementById('praise-text').innerText = mainText; document.getElementById('praise-sub').innerText = subText;
+            state.xp += 100; updateHUD();
+            
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('praise-stamp'); void card.offsetWidth; card.classList.add('praise-stamp');
+            
+            shootConfetti();
+            
+            setTimeout(() => {
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+            }, 2000);
+        }
+
+        function toggleTeacherPanel() { document.getElementById('teacher-panel').classList.toggle('open'); }
+
+        const notesEl = document.getElementById('teacher-notes');
+        function loadNotes() { const saved = localStorage.getItem('wolfNotes_Scrapbook'); if(saved) notesEl.value = saved; }
+        notesEl.addEventListener('input', () => { localStorage.setItem('wolfNotes_Scrapbook', notesEl.value); });
+
+        // --- RENDER ENGINE ---
+        function render() {
+            const container = document.getElementById('step-container');
+            const d = lesson[state.step];
+            container.innerHTML = ''; updateHUD();
+            let content = '';
+
+            switch(d.type) {
+                case 'cover':
+                    content = `
+                        <div class="text-center fade-in flex flex-col items-center">
+                            <div class="polaroid transform -rotate-3 mb-10">
+                                <div class="tape"></div>
+                                <div class="w-48 h-48 bg-panelHover flex items-center justify-center border border-panelHover">
+                                    <i class="fa-solid ${d.icon} text-7xl text-textMuted"></i>
+                                </div>
+                            </div>
+                            <h1 class="font-epic text-5xl md:text-7xl text-textMain tracking-tighter uppercase mb-4 border-b-4 border-accentRed inline-block pb-2">${d.title}</h1>
+                            <h2 class="font-hand text-4xl text-accentBlue mb-8 transform -rotate-2">${d.subtitle}</h2>
+                            <p class="font-ui text-lg text-textMain max-w-xl mx-auto ws-panel p-6 rounded border-l-4 border-accentYellow">${d.desc}</p>
+                        </div>`;
+                    break;
+                case 'idReg':
+                    content = `
+                        <div class="text-center fade-in w-full max-w-xl mx-auto polaroid transform rotate-1">
+                            <div class="tape"></div>
+                            <h2 class="font-epic text-4xl text-textMain mb-4 border-b-2 border-dashed border-panelHover pb-4">${d.title}</h2>
+                            <p class="font-ui text-textMuted mb-8">${d.desc}</p>
+                            <div class="relative mb-8">
+                                <i class="fa-solid fa-pen absolute left-4 top-1/2 -translate-y-1/2 text-xl text-accentBlue"></i>
+                                <input type="text" id="id-input" class="w-full bg-panelHover border-b-2 border-textMain p-4 pl-12 font-hand text-4xl text-accentBlue focus:outline-none focus:bg-panelWhite transition-colors" placeholder="Your Name">
+                            </div>
+                            <button onclick="registerID()" class="w-full btn-retro py-4 text-xl">SIGN ALBUM</button>
+                        </div>`;
+                    break;
+                case 'mcqVibe':
+                case 'mcqTrial':
+                    content = `
+                        <div class="w-full max-w-3xl mx-auto fade-in">
+                            <p class="font-epic text-accentRed tracking-[0.3em] text-sm mb-4 uppercase font-bold border-b-2 border-accentRed inline-block pb-1">${d.type === 'mcqTrial' ? 'Memory Test' : 'Quick Question'}</p>
+                            <h2 class="font-ui text-4xl text-textMain mb-10 leading-snug font-bold">${d.q}</h2>
+                            <div class="space-y-4">
+                                ${d.options.map((opt, i) => `
+                                    <button onclick="checkMCQ(this, ${i}, ${d.correct !== undefined ? d.correct : i})" class="w-full bg-panelWhite border-2 border-panelHover p-6 rounded text-left font-ui text-xl text-textMain hover:border-accentBlue hover:bg-panelHover transition-colors group shadow-sm flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-full border-2 border-panelHover flex items-center justify-center font-epic text-textMuted group-hover:border-accentBlue group-hover:text-accentBlue transition-colors">${String.fromCharCode(65+i)}</div>
+                                        <span>${opt}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div id="follow-up-box" class="hidden">
+                                ${buildSpeakingPrompt(d.followUpQ, d.starter)}
+                            </div>
+                        </div>`;
+                    break;
+                case 'debate':
+                    content = `
+                        <div class="w-full max-w-4xl mx-auto text-center fade-in h-full flex flex-col justify-center items-center">
+                            <h2 class="font-epic text-4xl text-textMain mb-10">${d.title}</h2>
+                            <div class="sticky-note mb-10 max-w-2xl transform -rotate-1">
+                                <i class="fa-solid fa-thumbtack absolute top-4 left-1/2 -translate-x-1/2 text-2xl text-accentRed"></i>
+                                <p class="font-ui text-2xl md:text-3xl leading-relaxed text-textMain mb-8 font-bold mt-8">"${d.q}"</p>
+                                <p class="font-hand text-accentBlue text-4xl tracking-wide">"${d.starter}"</p>
+                            </div>
+                            <p class="font-epic text-textMuted text-sm tracking-widest animate-pulse"><i class="fa-solid fa-comments mr-2"></i> Discuss with Teacher</p>
+                        </div>`;
+                    break;
+                case 'matchVocab':
+                    content = `
+                        <div class="w-full max-w-4xl mx-auto fade-in">
+                            <p class="font-epic text-center text-accentRed tracking-[0.3em] text-sm mb-2 uppercase font-bold">Vocabulary Labels</p>
+                            <h2 class="font-epic text-4xl text-textMain mb-12 text-center">${d.title}</h2>
+                            <div class="flex flex-col md:flex-row gap-8">
+                                <div class="w-full md:w-1/3 flex flex-col gap-4" id="vocab-bank">
+                                    ${[...d.pairs].sort(()=>Math.random()-0.5).map(p => `
+                                        <button onclick="selectVocab(this)" class="vocab-pill bg-panelWhite border-2 border-dashed border-panelHover p-4 font-epic text-xl text-textMain hover:border-accentBlue transition-colors shadow-sm transform rotate-1" data-word="${p.w}">${p.w}</button>
+                                    `).join('')}
+                                </div>
+                                <div class="w-full md:w-2/3 flex flex-col gap-4">
+                                    ${[...d.pairs].sort(()=>Math.random()-0.5).map((p, i) => `
+                                        <div class="bg-panelWhite border border-panelHover p-4 shadow-sm flex items-center gap-6">
+                                            <div class="vocab-drop w-40 h-14 border-2 border-dashed border-panelHover flex items-center justify-center cursor-pointer bg-panelHover" onclick="dropVocab(this, '${p.w}')"></div>
+                                            <p class="font-ui text-lg text-textMain flex-1 font-bold">"${p.d}"</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'easyReaderJournal':
+                    content = `
+                        <div class="w-full max-w-4xl mx-auto fade-in flex flex-col md:flex-row gap-8 items-center md:items-start">
+                            <div class="polaroid transform -rotate-3 shrink-0">
+                                <div class="tape"></div>
+                                <div class="w-48 h-48 bg-panelHover flex items-center justify-center border border-panelHover">
+                                    <i class="fa-solid ${d.photoIcon} text-7xl text-textMuted"></i>
+                                </div>
+                                <p class="font-hand text-2xl mt-4 text-center text-textMain">${d.date}</p>
+                            </div>
+                            
+                            <div class="flex-1 w-full">
+                                <h2 class="font-epic text-3xl text-textMain mb-6 border-b-2 border-textMain pb-2">${d.title}</h2>
+                                <div class="journal-paper">
+                                    <p class="text-2xl text-textMain font-ui font-medium">${d.text}</p>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div id="vocab-modal" class="hidden mt-12 fade-in max-w-2xl mx-auto sticky-note transform rotate-1">
+                                <div class="flex items-center gap-4 mb-4 border-b border-yellow-700/30 pb-2">
+                                    <i class="fa-solid fa-search text-2xl text-textMain"></i>
+                                    <div>
+                                        <h3 id="modal-title" class="font-epic text-2xl text-textMain font-black uppercase tracking-wide"></h3>
+                                        <p id="modal-def" class="font-ui text-lg text-textMain font-bold"></p>
+                                    </div>
+                                </div>
+                                <div id="modal-speaking" class="mt-4">
+                                    <p class="font-epic text-accentRed text-xs tracking-widest uppercase mb-1 font-bold">Teacher Prompt</p>
+                                    <p id="modal-q" class="font-ui text-xl text-textMain font-bold mb-2"></p>
+                                    <p id="modal-starter" class="font-hand text-accentBlue text-3xl tracking-wide"></p>
+                                </div>
+                            </div>`;
+                    break;
+                case 'videoFeed':
+                    content = `
+                        <div class="w-full max-w-4xl mx-auto fade-in">
+                            <p class="font-epic text-center text-accentRed tracking-[0.3em] text-sm mb-4 uppercase font-bold border-b-2 border-accentRed inline-block pb-1"><i class="fa-solid fa-film mr-2"></i> VIDEO ARCHIVE</p>
+                            
+                            <div class="bg-gray-100 p-6 rounded-lg border-2 border-gray-300 shadow-inner mt-4 relative">
+                                <div class="absolute top-4 right-4 flex gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                                    <span class="font-epic text-xs text-gray-500 uppercase">REC</span>
+                                </div>
+                                
+                                <div class="w-full aspect-video bg-black relative rounded border-4 border-gray-800 shadow-lg mt-4 overflow-hidden">
+                                    <div class="absolute top-0 left-0 bg-accentRed text-white px-5 py-1.5 text-sm font-epic tracking-widest z-10 shadow-md">LET'S WATCH FROM ${formatTime(d.start)} TO ${formatTime(d.end)}</div>
+                                    <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/${d.videoId}?start=${d.start}&end=${d.end}&rel=0&modestbranding=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>
+                                
+                                <div class="mt-8 text-center">
+                                    <h3 class="text-3xl text-textMain font-bold font-epic mb-3 uppercase">${d.title}</h3>
+                                    <p class="text-textMuted font-ui text-xl font-bold mb-8">${d.instruction}</p>
+                                    <button onclick="triggerPraise('WATCHED!', 'TAPE REWOUND'); nav(1)" class="btn-retro py-4 px-12 text-xl tracking-widest shadow-md">I WATCHED THE VIDEO <i class="fa-solid fa-check ml-2"></i></button>
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'decoder':
+                    let shuffled = [...d.blocks].sort(()=>Math.random()-0.5);
+                    content = `
+                        <div class="w-full max-w-4xl mx-auto fade-in text-center">
+                            <h2 class="font-epic text-4xl text-textMain mb-8">${d.title}</h2>
+                            <div id="decoder-ans" class="min-h-[100px] bg-panelWhite border-2 border-dashed border-panelHover p-6 mb-10 flex flex-wrap gap-3 justify-center items-center shadow-inner relative">
+                                <div class="absolute top-2 left-2 text-textMuted text-sm font-epic"><i class="fa-solid fa-image"></i> Add words here</div>
+                            </div>
+                            <div id="decoder-bank" class="flex flex-wrap gap-4 justify-center mb-12">
+                                ${shuffled.map(w => `<button onclick="moveBlock(this)" class="bg-panelHover border-2 border-panelHover px-8 py-4 text-xl font-epic font-bold text-textMain hover:border-accentBlue hover:text-accentBlue transition-colors shadow-sm transform -rotate-1">${w}</button>`).join('')}
+                            </div>
+                            <button id="verify-btn" onclick="checkDecoder('${d.correct}')" class="btn-retro px-12 py-4 text-lg">GLUE CAPTION</button>
+                            
+                            <div id="decoder-followup" class="hidden mt-6">
+                                ${buildSpeakingPrompt(d.followUpQ, d.starter)}
+                            </div>
+                        </div>`;
+                    break;
+                case 'shift':
+                    content = `
+                        <div class="w-full text-center fade-in flex flex-col items-center justify-center h-full">
+                            <i class="fa-solid fa-book-journal-whills text-8xl text-accentRed mb-8 drop-shadow-md transform -rotate-6"></i>
+                            <h1 class="font-epic text-5xl md:text-7xl text-textMain mb-6">${d.title}</h1>
+                            <div class="sticky-note max-w-2xl mx-auto text-left transform rotate-2">
+                                <p class="font-ui text-2xl text-textMain font-bold leading-relaxed">${d.desc}</p>
+                            </div>
+                            <button onclick="nav(1)" class="mt-12 btn-retro px-12 py-4 text-xl font-bold tracking-widest uppercase">OPEN PAGE</button>
+                        </div>`;
+                    break;
+                case 'lever':
+                    content = `
+                        <div class="w-full max-w-4xl mx-auto fade-in text-center flex flex-col items-center justify-center h-full">
+                            <h2 class="font-epic text-4xl text-textMain mb-12">${d.title}</h2>
+                            
+                            <div class="flex items-center justify-between w-full bg-panelWhite p-12 rounded border border-panelHover mb-12 relative overflow-hidden shadow-sm">
+                                <div class="w-5/12 text-right pr-6">
+                                    <p id="lvr-c-a" class="font-epic text-accentBlue font-bold tracking-widest mb-3 transition-opacity uppercase border-b border-accentBlue inline-block">${d.conceptA}</p>
+                                    <p id="lvr-t-a" class="font-hand text-4xl font-bold text-textMain transition-opacity">${d.textA}</p>
+                                </div>
+                                
+                                <div class="w-2/12 flex justify-center relative z-10">
+                                    <div class="lever-track" id="grammar-lever" onclick="toggleLever()">
+                                        <div class="lever-thumb"></div>
+                                    </div>
+                                </div>
+
+                                <div class="w-5/12 text-left pl-6">
+                                    <p id="lvr-c-b" class="font-epic text-accentRed font-bold tracking-widest mb-3 opacity-30 transition-opacity uppercase border-b border-accentRed inline-block">${d.conceptB}</p>
+                                    <p id="lvr-t-b" class="font-hand text-4xl font-bold text-textMain opacity-30 transition-opacity">${d.textB}</p>
+                                </div>
+                            </div>
+
+                            <div class="sticky-note transform -rotate-1 max-w-2xl">
+                                <p class="font-ui text-xl text-textMain font-bold"><i class="fa-solid fa-thumbtack text-accentRed mr-2"></i> ${d.rule}</p>
+                            </div>
+                        </div>`;
+                    state.mechanics.leverState = false;
+                    break;
+                case 'rapidFire':
+                    content = `
+                        <div class="w-full max-w-3xl mx-auto fade-in text-center flex flex-col items-center">
+                            <h2 class="font-epic text-4xl text-textMain mb-4">${d.title}</h2>
+                            <p class="font-ui text-textMuted tracking-widest mb-10 font-bold uppercase">${d.instruction}</p>
+                            
+                            <div class="w-32 h-32 rounded-full bg-panelWhite flex items-center justify-center mb-8 border-4 border-panelHover shadow-inner overflow-hidden relative">
+                                <i class="fa-solid fa-utensils text-5xl text-textMuted"></i>
+                                <div class="absolute inset-0 bg-accentRed opacity-10 animate-ping"></div>
+                            </div>
+                            
+                            <div class="journal-paper w-full mb-10 text-left">
+                                <p class="font-hand text-4xl font-bold text-textMain leading-relaxed">"${d.q}"</p>
+                            </div>
+                            
+                            <button onclick="answerLiveStream(this)" class="btn-retro px-12 py-4 text-lg">I ANSWERED THE QUESTION</button>
+                            
+                            <div id="live-followup" class="hidden mt-6 w-full">
+                                ${buildSpeakingPrompt('Ask the Teacher a question now!', '"Teacher, what about you? Do you..."')}
+                            </div>
+                        </div>`;
+                    break;
+                case 'qRoulette':
+                    content = `
+                        <div class="w-full max-w-4xl mx-auto fade-in text-center flex flex-col items-center">
+                            <p class="font-epic text-accentBlue tracking-[0.3em] text-sm mb-4 uppercase"><i class="fa-solid fa-arrows-spin mr-2"></i> ${d.instruction}</p>
+                            <h2 class="font-epic text-5xl text-textMain mb-12">${d.title}</h2>
+                            
+                            <div class="polaroid w-full max-w-2xl mb-10 h-48 flex items-center justify-center overflow-hidden relative">
+                                <div class="tape"></div>
+                                <h3 id="roulette-text" class="font-ui text-2xl md:text-3xl text-textMain font-bold relative z-20 transition-all duration-75 text-center mt-4">Click Spin to flip through photos</h3>
+                            </div>
+                            
+                            <button id="spin-btn" onclick="spinRoulette(${state.step})" class="font-epic text-xl btn-retro px-16 py-5">SPIN WHEEL</button>
+                            
+                            <div id="roulette-followup" class="hidden w-full">
+                                ${buildSpeakingPrompt('Now, ask the Teacher a question!', '"What about you? ..."')}
+                            </div>
+                        </div>`;
+                    break;
+                case 'pressConference':
+                    content = `
+                        <div class="w-full max-w-4xl mx-auto fade-in text-center flex flex-col items-center">
+                            <h2 class="font-epic text-4xl text-textMain mb-4 border-b-4 border-textMain pb-2 inline-block">${d.title}</h2>
+                            <p class="font-ui text-textMuted font-bold mb-10 uppercase tracking-widest">${d.prompt}</p>
+                            
+                            <div class="bg-panelWhite w-full p-10 rounded shadow-md mb-12 flex flex-col md:flex-row items-center gap-8 border border-panelHover">
+                                <div class="w-24 h-24 rounded-full bg-panelHover flex items-center justify-center shrink-0 border-2 border-panelHover">
+                                    <i class="fa-solid fa-user-ninja text-4xl text-textMuted"></i>
+                                </div>
+                                <div class="text-left flex-1">
+                                    <p class="font-epic text-accentRed tracking-widest text-sm mb-2 uppercase border-b border-accentRed inline-block">${d.reporter}</p>
+                                    <p class="font-ui text-2xl font-bold text-textMain leading-relaxed mt-2">"${d.q}"</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col items-center justify-center mb-6">
+                                <button id="mic-btn" onclick="togglePressMic()" class="w-24 h-24 rounded-full bg-panelHover border-4 border-panelHover hover:border-accentBlue transition-all group flex items-center justify-center shadow-inner relative overflow-hidden">
+                                    <i class="fa-solid fa-microphone-lines text-4xl text-textMuted group-hover:text-accentBlue transition-colors relative z-10" id="mic-icon"></i>
+                                    <div class="absolute inset-0 bg-accentRed opacity-0 group-[.recording]:opacity-20 transition-opacity"></div>
+                                </button>
+                                <p id="mic-status" class="font-epic text-textMuted tracking-widest uppercase text-sm mt-4">Click to Record Voice</p>
+                            </div>
+                        </div>`;
+                    break;
+                case 'crossroads':
+                    content = `
+                        <div class="w-full max-w-5xl mx-auto fade-in text-center">
+                            <p class="font-epic text-accentRed tracking-[0.3em] text-sm mb-4 uppercase">Critical Choice</p>
+                            <h2 class="font-epic text-5xl text-textMain mb-8">${d.title}</h2>
+                            <div class="journal-paper mb-12 max-w-3xl mx-auto text-left">
+                                <p class="font-hand text-3xl font-bold text-textMain leading-relaxed">"${d.dilemma}"</p>
+                            </div>
+                            
+                            <div class="flex flex-col md:flex-row justify-center gap-8 px-4">
+                                <button onclick="triggerPraise('DECISION MADE', 'CHOICE RECORDED'); nav(1)" class="flex-1 py-12 bg-panelWhite border-2 border-panelHover rounded hover:border-textMain hover:shadow-[4px_4px_0_#EAE4D9] group transition-all relative">
+                                    <div class="tape"></div>
+                                    <span class="font-epic text-2xl text-textMain block mb-4 mt-2">${d.opt1}</span>
+                                    <span class="font-hand text-accentBlue text-3xl">"I would..."</span>
+                                </button>
+                                <button onclick="triggerPraise('DECISION MADE', 'CHOICE RECORDED'); nav(1)" class="flex-1 py-12 bg-panelWhite border-2 border-panelHover rounded hover:border-textMain hover:shadow-[4px_4px_0_#EAE4D9] group transition-all relative">
+                                    <div class="tape"></div>
+                                    <span class="font-epic text-2xl text-textMain block mb-4 mt-2">${d.opt2}</span>
+                                    <span class="font-hand text-accentBlue text-3xl">"I would..."</span>
+                                </button>
+                            </div>
+                        </div>`;
+                    break;
+                case 'homework':
+                    content = `
+                        <div class="w-full max-w-md mx-auto fade-in text-center flex flex-col items-center bg-panelWhite p-12 rounded border border-panelHover shadow-md">
+                            <i class="fa-solid fa-mobile-screen-button text-7xl text-textMain mb-6"></i>
+                            <h2 class="font-epic text-3xl text-textMain mb-4">${d.title}</h2>
+                            <p class="font-ui text-textMuted mb-8 font-bold">${d.desc}</p>
+                            <a href="#" class="w-full btn-retro py-4 text-lg">OPEN ${d.appName}</a>
+                        </div>`;
+                    break;
+                case 'curtain':
+                    content = `
+                        <div class="w-full max-w-3xl mx-auto fade-in text-center">
+                            <div class="polaroid inline-block mb-10 transform rotate-2">
+                                <div class="tape"></div>
+                                <div class="w-48 h-48 bg-panelHover flex items-center justify-center border border-panelHover">
+                                    <i class="fa-solid fa-award text-7xl text-accentYellow drop-shadow-md"></i>
+                                </div>
+                            </div>
+                            <h1 class="font-epic text-5xl md:text-6xl text-textMain mb-4 tracking-tighter">${d.title}</h1>
+                            <p class="font-ui text-xl text-textMuted mb-12 font-bold">${d.desc}</p>
+                            
+                            <div class="bg-panelWhite p-8 rounded inline-block min-w-[300px] mb-12 border border-panelHover shadow-sm">
+                                <p class="font-epic text-sm text-textMuted tracking-widest mb-2 uppercase">Memories Collected</p>
+                                <p class="font-epic text-6xl text-accentBlue">${state.xp}</p>
+                            </div>
+                            
+                            <br>
+                            <button onclick="location.reload()" class="font-epic text-textMuted hover:text-textMain border-b-2 border-transparent hover:border-textMain transition-colors tracking-widest uppercase pb-1">Close Album</button>
+                        </div>`;
+                    break;
+            }
+
+            container.innerHTML = content;
+        }
+
+        // --- SPECIFIC MECHANICS LOGIC ---
+        
+        function registerID() {
+            let val = document.getElementById('id-input').value.trim();
+            if(val) {
+                state.studentName = val;
+                triggerPraise('VERIFIED!', 'NAME WRITTEN');
+                setTimeout(() => nav(1), 1500);
+            }
+        }
+
+        function checkMCQ(btn, selectedIndex, correctIndex) {
+            const container = btn.parentElement;
+            Array.from(container.children).forEach(b => b.disabled = true);
+            if(selectedIndex === correctIndex || correctIndex === undefined) {
+                btn.classList.add('border-accentBlue', 'bg-accentBlue/20');
+                btn.querySelector('div').classList.add('border-accentBlue', 'bg-accentBlue', 'text-panelWhite');
+                triggerPraise();
+                const fu = document.getElementById('follow-up-box');
+                if(fu) fu.classList.remove('hidden');
+            } else {
+                btn.classList.add('border-accentRed', 'bg-accentRed/20');
+                btn.querySelector('div').classList.add('border-accentRed', 'bg-accentRed', 'text-panelWhite');
+                container.children[correctIndex].classList.add('border-accentBlue', 'bg-accentBlue/20');
+                container.children[correctIndex].querySelector('div').classList.add('border-accentBlue', 'bg-accentBlue', 'text-panelWhite');
+                takeDamage();
+            }
+        }
+
+        function openVocabModal(element, title, def, q, starter) {
+            const links = document.querySelectorAll('.vocab-link');
+            links.forEach(l => l.classList.remove('active'));
+            element.classList.add('active');
+            
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-def').innerText = def;
+            document.getElementById('modal-q').innerText = `"${q}"`;
+            document.getElementById('modal-starter').innerText = `"${starter}"`;
+            
+            document.getElementById('vocab-modal').classList.remove('hidden');
+            triggerPraise('NOTE ADDED', 'TEACHER READY');
+            
+            setTimeout(() => {
+                document.getElementById('vocab-modal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+
+        let selectedPill = null;
+        function selectVocab(el) {
+            if(selectedPill) selectedPill.classList.remove('border-accentBlue', 'text-accentBlue');
+            selectedPill = el;
+            el.classList.add('border-accentBlue', 'text-accentBlue');
+        }
+        function dropVocab(slot, correctWord) {
+            if(!selectedPill) return;
+            if(selectedPill.getAttribute('data-word') === correctWord) {
+                slot.innerHTML = `<span class="font-hand text-3xl text-accentBlue font-bold tracking-widest">${correctWord}</span>`;
+                slot.classList.replace('border-dashed', 'border-solid');
+                slot.classList.replace('border-panelHover', 'border-accentBlue');
+                slot.classList.replace('bg-panelHover', 'bg-accentBlue/20');
+                selectedPill.style.display = 'none';
+                selectedPill = null;
+                const total = document.querySelectorAll('.vocab-drop').length;
+                const done = document.querySelectorAll('.vocab-drop.border-accentBlue').length;
+                if(total === done) triggerPraise('GLUED!', 'LABELS PLACED');
+            } else {
+                takeDamage();
+            }
+        }
+
+        function moveBlock(btn) {
+            const ans = document.getElementById('decoder-ans');
+            const bank = document.getElementById('decoder-bank');
+            if(btn.parentElement === bank) {
+                ans.appendChild(btn);
+                btn.classList.replace('bg-panelHover', 'bg-panelWhite');
+            } else {
+                bank.appendChild(btn);
+                btn.classList.replace('bg-panelWhite', 'bg-panelHover');
+            }
+        }
+        
+        function checkDecoder(correctStr) {
+            const current = Array.from(document.getElementById('decoder-ans').querySelectorAll('button')).map(b => b.innerText).join(' ');
+            if(current === correctStr) {
+                document.getElementById('decoder-ans').classList.replace('border-dashed', 'border-solid');
+                document.getElementById('decoder-ans').classList.replace('border-panelHover', 'border-accentGreen');
+                document.getElementById('verify-btn').classList.add('hidden');
+                const fu = document.getElementById('decoder-followup');
+                if(fu) fu.classList.remove('hidden');
+                triggerPraise('GLUED!', 'CAPTION SAVED');
+            } else {
+                takeDamage();
+            }
+        }
+
+        function toggleLever() {
+            const track = document.getElementById('grammar-lever');
+            state.mechanics.leverState = !state.mechanics.leverState;
+            const [ca, ta, cb, tb] = ['lvr-c-a', 'lvr-t-a', 'lvr-c-b', 'lvr-t-b'].map(id => document.getElementById(id));
+            if(state.mechanics.leverState) {
+                track.classList.add('toggled');
+                ca.classList.add('opacity-30'); ta.classList.add('opacity-30');
+                cb.classList.remove('opacity-30'); tb.classList.remove('opacity-30');
+            } else {
+                track.classList.remove('toggled');
+                ca.classList.remove('opacity-30'); ta.classList.remove('opacity-30');
+                cb.classList.add('opacity-30'); tb.classList.add('opacity-30');
+            }
+        }
+
+        function answerLiveStream(btn) {
+            btn.classList.add('hidden');
+            document.getElementById('live-followup').classList.remove('hidden');
+            triggerPraise('ANSWERED!', 'DINNER CONTINUES');
+        }
+
+        let rouletteSpinning = false;
+        function spinRoulette(stepIndex) {
+            if(rouletteSpinning) return;
+            rouletteSpinning = true;
+            const textEl = document.getElementById('roulette-text'); const btn = document.getElementById('spin-btn'); const fu = document.getElementById('roulette-followup');
+            const qList = lesson[stepIndex].questions;
+            btn.classList.add('opacity-50', 'pointer-events-none'); fu.classList.add('hidden'); textEl.classList.add('text-accentBlue');
+            let spins = 0; const maxSpins = 20;
+            const interval = setInterval(() => {
+                textEl.innerText = qList[Math.floor(Math.random() * qList.length)]; spins++;
+                if(spins >= maxSpins) {
+                    clearInterval(interval);
+                    textEl.innerText = `"${qList[Math.floor(Math.random() * qList.length)]}"`; textEl.classList.remove('text-accentBlue');
+                    btn.innerText = "I SPOKE"; btn.classList.remove('opacity-50', 'pointer-events-none');
+                    btn.onclick = () => { fu.classList.remove('hidden'); btn.classList.add('hidden'); triggerPraise('ANSWERED', 'GOOD MEMORY'); };
+                    rouletteSpinning = false;
+                }
+            }, 80);
+        }
+
+        function togglePressMic() {
+            const btn = document.getElementById('mic-btn'); const icon = document.getElementById('mic-icon'); const status = document.getElementById('mic-status');
+            if(btn.classList.contains('recording')) {
+                btn.classList.remove('recording', 'border-accentRed'); btn.classList.add('border-accentBlue');
+                icon.classList.replace('fa-stop', 'fa-check'); icon.classList.replace('text-accentRed', 'text-accentBlue');
+                status.innerText = "TAPE SAVED"; status.classList.replace('text-textMuted', 'text-accentBlue');
+                triggerPraise('SAVED!', 'TAPE RECORDED');
+            } else if(!btn.classList.contains('border-accentBlue')) {
+                btn.classList.add('recording', 'border-accentRed'); btn.classList.remove('border-gray-300');
+                icon.classList.replace('fa-microphone-lines', 'fa-stop'); icon.classList.replace('text-gray-500', 'text-accentRed');
+                status.innerText = "RECORDING... CLICK TO STOP"; status.classList.add('text-accentRed');
+            }
+        }
+
+        // --- CONFETTI ENGINE ---
+        function shootConfetti() {
+            const cCanvas = document.createElement('canvas'); cCanvas.style.position = 'fixed'; cCanvas.style.inset = 0; cCanvas.style.pointerEvents = 'none'; cCanvas.style.zIndex = 9999; document.body.appendChild(cCanvas);
+            const cCtx = cCanvas.getContext('2d'); cCanvas.width = window.innerWidth; cCanvas.height = window.innerHeight;
+            // Use vintage colors for confetti
+            const pieces = []; const colors = ['#D9534F', '#3498DB', '#F1C40F', '#27AE60'];
+            for(let i=0; i<60; i++) pieces.push({ x: cCanvas.width/2, y: cCanvas.height/2+100, vx: (Math.random()-0.5)*20, vy: (Math.random()-1)*20-5, size: Math.random()*10+5, color: colors[Math.floor(Math.random()*colors.length)], rot: Math.random()*360, rotSpeed: (Math.random()-0.5)*10 });
+            function animateC() {
+                cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height); let active = false;
+                pieces.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.5; p.rot += p.rotSpeed; if(p.y < cCanvas.height) active = true; cCtx.save(); cCtx.translate(p.x, p.y); cCtx.rotate(p.rot*Math.PI/180); cCtx.fillStyle = p.color; cCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size); cCtx.restore(); });
+                if(active) requestAnimationFrame(animateC); else document.body.removeChild(cCanvas);
+            }
+            animateC();
+        }
+
+        window.onload = () => { document.getElementById('page-counter').innerText = `PAGE 01 / 25`; document.getElementById('hud-name').innerText = state.studentName; };
+    </script>
+</body>
+</html>
